@@ -1,41 +1,14 @@
-language: smalltalk
-sudo: false
-
-os:
-  - linux
-
-smalltalk:
-  - Pharo-6.1
-
-# Unit tests run the normal pillar tests
-# Integration tests test that pillar itself can interact with generated files, pdf generation, etc.
-# System tests test that we can install and use pillar as a black box
-env:
-  matrix:
-  - JOB=test TYPE=System ARCHETYPE=book OUTPUT=pdf
-
-install:
-  # Pillar installation
-  - git clone https://github.com/pillar-markup/pillar.git  # Clone pillar
-  - cd pillar && ./scripts/build.sh && cd ..                              # Run pillar build script. Pillar will be built in `pwd`/build!
-  - . pillar/scripts/ci/ensure_latex.sh                                   # Install latex
-  - ./pillar/scripts/ci/ensure_book_dependencies.sh                       # Install latex dependencies required by pillar
-  
+language: c
+addons:
+  apt:
+    packages:
+    - libasound2:i386
+    - lib32z1
+    - lib32bz2-1.0
+    - libssl1.0.0:i386
+    - libfreetype6:i386
 script:
-  - ./pillar/build/pillar build pdf
-deploy:
-- provider: bintray
-  file: .bintray.json
-  on:
-    all_branches: true
-    repo: SquareBracketAssociates/Booklet-Voyage
-  skip_cleanup: true
-  user: ducasse
-  key:
-    secure: Wn+0wEaAuaSbAkG5/KQSw/4sjMSqw1qGcJ01O7NBarcZ/uIKjxOinaTLe9pyZt133vX2zaSzHEPDb+s3V7f4BsLU6r8E168n8MQ3jgtOgeVK6BJ/JFC54+s1qE3axQBfci1Thkc9mHUL0iFH7lfxqOlpAj/CNI8zb8MMTUP0PKC2JF84rVMbidoPL9mcMw/FeDhLHOJVzR+3cw9I3DmGDBSzpPKyv9cnMmJ9Vlj9ySwtngVjwpt1zBpCKG5CFo0YyyIEkt7AdNXuFqGuMPHdY7v11KNLGGTS8NEbRdF7aYxA5X/mq/qfCnnrW7hGIdLpKsaXA7ElVL3vqxZrRgiSqG1fc88Ltq4TDAyB+YN6m3egRzuVOebHcW+qsFSNZDyE5eYzjbH0hpUxV1fuLudTj/+2yzttHCH25l1Y7/3KQac5s2yiuPKYHcr/wEIF9H3wRrJvgxSegKGyHZyXJodnWzJmiDUK2GY+XXmiF0QhDVs3f8mFuvA3eVAtjh1+xGWX9VdDD1s2z8sCw/xUxpYGqV8abIrEfczgi15/ta9UGOTUhwkFJNupaqTfn+rgVNfjpnIk9n0wokKD19GapdUHq/6lU9ZhjvM7FdlvkGxxIHs4/3UjLjfKSgtzfSui97w0opv0Zr9uKo+95xKwyyr/qDRWjhAdp9a2Q8wRbg4TD3Y=
-- provider: releases
-  file: build/voyage.spiral.pdf
-  on: { tags: true }
-  skip_cleanup: true
-  api_key:
-    secure: T0JYu7ciwbosCJcyqPv+XoOKZb/Xnve+C+Z/FxKl1ivAQK+ZuUUAvnRLVOppw3CagmkfJclpkkhyoEWAW6c9ZLnDA7VNk+CGC+OmNFhvtEcmBFpzqCzC3jn028xVk0/rg2lrCtsRnGXkSwNmpLUKU1Em0eOdFHqKkbXCYPJDzG7lcP1GgZDgGZSp4eIBVdi9904DRZhuKPHSycbBbQIbMnLlEw42DBGUtrGgtmnFwg0y0STmXib4rVnQdmcnkWMIzygj8fc+XL7In2XjyOnef009vpWd5Oz1tBpzwgMYblo2p7ErDWeD0oMWeth+HJJuzdUfeyl2yk4GgvwSbFS7+iSI+TXuwJKvkmwMiMgtbTvWC+E3N4AVZmgRLhUXldyUkmiqTzkPmatWIofnfEtYT7r9dWDz7Opf+LzT09Mm0D6QHsm/mNJ+0X5WzgkWj/h9XPTbF3y5bZlh+U822W3wGmXc7hg60Qii8bqU6qEutKSF+3y+g7Y0xtjHRQuMGX47FygBnDqlGVwdjL6VvG0o2a3qWC7Tt4KSRKigwzRL6KevQRmmBp+QNQDA2YUJ5I9vX4Ail7O3BOIQydYXN7VPobCevIGa+q6AfscbU+ZoXOWTmQ4VGm++fWYf8hTDKIonYAaQlrSvDZCOhp9qQTaDEo9KBIXWvAHOq6FmJ/Rg3KY=
+- if [[ ${TRAVIS_BRANCH} == "master" ]]; then make deploy; fi
+env:
+  global:
+    secure: BjyR9UKod4f6drme7vJe4WD41m1Bl7zYtDtUo+g6f/VhpRE0h30FhI8ihTq36kZituBITzm8qnHZRELCFMhXh4Df3OO9r+7mCtvW0Jeu6TLbVToTY1Sxg3wszkNxqj6YbDTIsqoDh/ndUd28Gi/DHW/1dq4Fm2mdbwD2xHNZ0UpROSYNk5D8syFYY9gHIr2Sc8jICEH8gpJ5DzovvPZ85ANPTcOWwOrBg2RvbinAlHgoLGYP/+eJlwRIcA8dYYhxX0nLHn4w4YJsTBtavNB6LjrS/wQ8M89j5o1YvkfdJyfHAtbDbJzJU3GLTQn8hZy+BUw8qCf2hKRY+NZzFC1bm/hr2TN1KPqwdTtT0NSc+f2JWJEui1Q9rPyCH2LROfv+WV5Abqij/4usWVDFpeeQ9Pc9MX/epsP4uvmM40GbtedpZawgpqUaKW/Pmbfhy2yNz+aEjIRw/lrMnixyIrx3MYf0HU8lLvofsRNzDYLckgaqUwT2b0RK0/9PGy6Ihvo15i9yGrGPNu6LtlEF6ZfKUtVH4qs7D6zZ4SeFM+2YfQ8j+ZKPCSV1EQlo13OKPjRIa68pl+oi0XNbC9FEL3MH1Ai0WGD1bphyYwm+F+feTRYGTt84rDl1MGD7JkfEVqLbGlv4Css/uXJhO/zZ+SxuNpVhbg6hQgQksF1QvBDVSbg=
